@@ -1,12 +1,3 @@
-// // Step 1: Load the star data from the JSON file
-// async function loadStarData() {
-//   const response = await fetch('stellar_stream_orbits.json');
-//   const starData = await response.json();
-//   console.log(starData); // Inspect the structure
-//   return starData.orbits;
-// }
-
-
 async function main() {
     const adapter = await navigator.gpu?.requestAdapter();
     const device = await adapter?.requestDevice();
