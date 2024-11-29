@@ -16,26 +16,26 @@ async function main() {
     });
 
     // Load star data
-  const starData = await loadStarData();
+  // const starData = await loadStarData();
 
     // Flatten star data to store in a single array (x, y, z, etc.)
-    const starArray = [];
-    starData.forEach(star => {
-      // For each star, push the x, y, z arrays and other data (like vx, vy, vz)
-      // We will assume the x, y, z arrays have the same length for each star
-      for (let i = 0; i < star.x.length; i++) {
-        starArray.push(star.x[i], star.y[i], star.z[i]);
-      }
-    });
+    // const starArray = [];
+    // starData.forEach(star => {
+    //   // For each star, push the x, y, z arrays and other data (like vx, vy, vz)
+    //   // We will assume the x, y, z arrays have the same length for each star
+    //   for (let i = 0; i < star.x.length; i++) {
+    //     starArray.push(star.x[i], star.y[i], star.z[i]);
+    //   }
+    // });
 
 
-    // Create WebGPU buffer to hold star data (positions for each time step)
-    const starBuffer = device.createBuffer({
-      size: starArray.length * Float32Array.BYTES_PER_ELEMENT,
-      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
-    });
+    // // Create WebGPU buffer to hold star data (positions for each time step)
+    // const starBuffer = device.createBuffer({
+    //   size: starArray.length * Float32Array.BYTES_PER_ELEMENT,
+    //   usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+    // });
 
-    device.queue.writeBuffer(starBuffer, 0, new Float32Array(starArray));
+    // device.queue.writeBuffer(starBuffer, 0, new Float32Array(starArray));
 
    
   
