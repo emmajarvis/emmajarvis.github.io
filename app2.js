@@ -1,10 +1,10 @@
-// Step 1: Load the star data from the JSON file
-async function loadStarData() {
-  const response = await fetch('stellar_stream_orbits.json');
-  const starData = await response.json();
-  console.log(starData); // Inspect the structure
-  return starData.orbits;
-}
+// // Step 1: Load the star data from the JSON file
+// async function loadStarData() {
+//   const response = await fetch('stellar_stream_orbits.json');
+//   const starData = await response.json();
+//   console.log(starData); // Inspect the structure
+//   return starData.orbits;
+// }
 
 
 async function main() {
@@ -83,7 +83,7 @@ async function main() {
    
         @group(0) @binding(0) var<storage, read> stars: array<Star>;
         @group(0) @binding(1) var<uniform> uniformData: UniformData;
-        @group(0) @binding(2) var<storage, read> orbits: array<Orbit>;
+        // @group(0) @binding(2) var<storage, read> orbits: array<Orbit>;
   
         @vertex fn vs( @builtin(vertex_index) vertexIndex : u32 ) -> InOut {
           let pos = array(
