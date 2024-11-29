@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stellar Stream Visualization</title>
+</head>
+<body>
+    <canvas id="webgpuCanvas" width="1000" height="800"></canvas>
+    <script type="module" src="app2.js"></script>
+
+    <div style="position: fixed; top: 10px; left: 20px; background: rgba(0, 0, 0, 0.7); padding: 10px; border-radius: 5px;">
+        <label for="speed-slider" style="color: white;">Speed:</label>
+        <input id="speed-slider" type="range" min="-100" max="100" step="0.1" value="1">
+        <span id="speed-value" style="color: white;">1.0x</span>
+      </div>
+
+      <div style="position: fixed; top: 50px; left:20px; background: rgba(0, 0, 0, 0.7); padding: 10px; border-radius: 5px; font-size: 16px;">
+        <span style="color: white; font-weight: bold;">Time Elapsed (1000 years) :</span>
+        <span id="time-elapsed" style="color: #FFD700; font-size: 18px;">0.00</span>
+      </div>
+      <div style="position: fixed; top: 90px; left: 20px; background: rgba(0, 0, 0, 0.7); padding: 10px; border-radius: 5px;">
+        <button id="pause-play-button">Pause</button>
+      </div>
+      <h3>GD-1 stellar stream with Gaia data</h3>
+        <p> Current position of stars is the RA and DEC of the star converted to Cartesian coordinates.</p>
+        <p> Motion of the stars is the velocities obtained from proper motions, again converted to Carteian coordinates.</p>
+        <p> Star colour is a range from red to blue that depicts the g magnitude of the stars with bluest stars being the brightest.</p>
+</body>
+</html>
