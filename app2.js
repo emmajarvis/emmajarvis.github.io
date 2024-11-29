@@ -66,11 +66,11 @@ async function main() {
           timestep: f32,
         };
 
-        struct Orbit {
-          x: array<f32, 1000>,
-          y: array<f32, 1000>,
-          z: array<f32, 1000>,
-        };
+        // struct Orbit {
+        //   x: array<f32, 1000>,
+        //   y: array<f32, 1000>,
+        //   z: array<f32, 1000>,
+        // };
    
         @group(0) @binding(0) var<storage, read> stars: array<Star>;
         @group(0) @binding(1) var<uniform> uniformData: UniformData;
