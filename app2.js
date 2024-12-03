@@ -1,3 +1,12 @@
+// Step 1: Load the star data from the JSON file
+async function loadStarData() {
+  const response = await fetch('stellar_stream_orbits.json');
+  const starData = await response.json();
+  console.log(starData); // Inspect the structure
+  return starData.orbits;
+}
+
+
 async function main() {
     const adapter = await navigator.gpu?.requestAdapter();
     const device = await adapter?.requestDevice();
@@ -15,7 +24,27 @@ async function main() {
       format: presentationFormat,
     });
 
+    // Load star data
+  const starData = await loadStarData();
 
+    // Flatten star data to store in a single array (x, y, z, etc.)
+    const starArray = [];
+    starData.forEach(star => {
+      // For each star, push the x, y, z arrays and other data (like vx, vy, vz)
+      // We will assume the x, y, z arrays have the same length for each star
+      for (let i = 0; i < star.x.length; i++) {
+        starArray.push(star.x[i], star.y[i], star.z[i]);
+      }
+    });
+
+
+    // Create WebGPU buffer to hold star data (positions for each time step)
+    const starBuffer = device.createBuffer({
+      size: starArray.length * Float32Array.BYTES_PER_ELEMENT,
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+    });
+
+    device.queue.writeBuffer(starBuffer, 0, new Float32Array(starArray));
 
    
   
@@ -46,15 +75,15 @@ async function main() {
           timestep: f32,
         };
 
-        // struct Orbit {
-        //   x: array<f32, 1000>,
-        //   y: array<f32, 1000>,
-        //   z: array<f32, 1000>,
-        // };
+        struct Orbit {
+          x: array<f32, 1000>,
+          y: array<f32, 1000>,
+          z: array<f32, 1000>,
+        };
    
         @group(0) @binding(0) var<storage, read> stars: array<Star>;
         @group(0) @binding(1) var<uniform> uniformData: UniformData;
-        // @group(0) @binding(2) var<storage, read> orbits: array<Orbit>;
+        @group(0) @binding(2) var<storage, read> orbits: array<Orbit>;
   
         @vertex fn vs( @builtin(vertex_index) vertexIndex : u32 ) -> InOut {
           let pos = array(
@@ -95,12 +124,8 @@ async function main() {
           let vy = cos(star.ra/180.0*3.1415) * pmra - sin(star.ra/180.0*3.1415) * sin(star.dec/180.0*3.1415) * pmdec;
           
           let x = size*pos[vertexIndex%6].x + sin(star.dec/180.0*3.1415) * cos(star.ra/180.0*3.1415) + vx*uniformData.time;
-          // console.log(pos[vertexIndex%6].x);
           let y = size*pos[vertexIndex%6].y + sin(star.dec/180.0*3.1415) * sin(star.ra/180.0*3.1415) + vy*uniformData.time;
-          let z = sin(star.dec/180.0*3.1415);
-
-          // if (x >= 1.0) { x -= 1.0; }
-          // if (x < 0.0) { x += 1.0; }
+          let z = sin(star.dec/180.0*3.1415)*0;
   
           var inOut: InOut;
           inOut.position = vec4f( x, y, z, 1.0);
@@ -110,7 +135,7 @@ async function main() {
         }
   
         @fragment fn fs(inOut: InOut) -> @location(0) vec4f {
-          // Normalize g magnitude for visualization
+          // Normalize g magnitude
           let minG = 14.807566;  // Replace with the minimum g value in your data
           let maxG = 21.23165; // Replace with the maximum g value in your data
           let normalizedG = (inOut.colour - minG) / (maxG - minG);
@@ -120,26 +145,9 @@ async function main() {
           var r = 1.0-length(inOut.tex);
           let a = pow(clamp(sin(phi*6.0),0.0,1.0),3.0/r);
           var f = pow(1.1*r,3.0) + r*a;
-          let c = normalizedG;
           return vec4f(color, f);
         
-        // @fragment
-        // fn fs(inOut: InOut) -> @location(0) vec4f {
-        //     // Normalize g magnitude for visualization
-        //     let minG = 0.0;  // Replace with the minimum g value in your data
-        //     let maxG = 20.0; // Replace with the maximum g value in your data
-        //     let normalizedG = clamp((inOut.colour - minG) / (maxG - minG), 0.0, 1.0);
-  
-        //     // Map normalized g to a color gradient (red -> yellow -> blue)
-        //     let color = mix(vec3f(1.0, 1.0, 0.0), vec3f(0.0, 0.0, 1.0), normalizedG);
-  
-        //     // Fade effect using tex coordinates
-        //     let phi = atan2(inOut.tex.y, inOut.tex.x);
-        //     let r = 1.0 - length(inOut.tex);
-        //     let a = pow(clamp(sin(phi * 6.0), 0.0, 1.0), 5.0 / r);
-        //     let f = pow(1.1 * r, 8.0) + r * a;
-  
-        //     return vec4f(color, f); // Apply the color and fade effect
+      
         }
       `,
     });
@@ -1409,7 +1417,7 @@ async function main() {
   
     var time = 0.0;
 
-    let speed = 1.0; // Default speed multiplier
+    let speed = 1.0; //default is speed=1
 
     const speedSlider = document.getElementById('speed-slider');
     const speedValue = document.getElementById('speed-value');
@@ -1424,14 +1432,14 @@ async function main() {
     let isPaused = false;
 
     pausePlayButton.addEventListener('click', () => {
-      isPaused = !isPaused; // Toggle pause state
-      pausePlayButton.textContent = isPaused ? 'Play' : 'Pause'; // Update button text
+      isPaused = !isPaused;
+      pausePlayButton.textContent = isPaused ? 'Play' : 'Pause'
     });
 
     function render() {
       
       if (isPaused) {
-        requestAnimationFrame(render); // Keep the rendering loop alive
+        requestAnimationFrame(render);
         return;
       }
       
@@ -1443,9 +1451,8 @@ async function main() {
       time += 0.01*speed;
       device.queue.writeBuffer(uniformBuffer, 0, uniformValues);
 
-      // Update the time display in the UI
       const timeElapsedElement = document.getElementById('time-elapsed');
-      timeElapsedElement.textContent = time.toFixed(2); // Display time with 2 decimal places
+      timeElapsedElement.textContent = time.toFixed(2);
 
   
       const encoder = device.createCommandEncoder();
